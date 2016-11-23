@@ -30,6 +30,10 @@ varid = netcdf.inqVarID(ncid,'va');
 fvout.sta.va = netcdf.getVar(ncid,varid);
 varid = netcdf.inqVarID(ncid,'zeta');
 fvout.sta.zeta = netcdf.getVar(ncid,varid);
+varid = netcdf.inqVarID(ncid,'temp');
+fvout.sta.temp = netcdf.getVar(ncid,varid);
+varid = netcdf.inqVarID(ncid,'salinity');
+fvout.sta.salinity = netcdf.getVar(ncid,varid);
 
 netcdf.close(ncid);
 

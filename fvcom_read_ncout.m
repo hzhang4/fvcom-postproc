@@ -1,4 +1,4 @@
-function fvout=fvcom_read_ncout(ncsta)
+function fvout=fvcom_read_ncout(ncsta,varlist)
 
 ncid = netcdf.open(ncsta,'NC_NOWRITE');
 
@@ -13,8 +13,8 @@ dimid = netcdf.inqDimID(ncid,'siglev');
 dimid = netcdf.inqDimID(ncid,'time');
 [~,fvout.ntime] = netcdf.inqDim(ncid,dimid);
 
-varid = netcdf.inqVarID(ncid,'partition');
-fvout.partition = netcdf.getVar(ncid,varid);
+% varid = netcdf.inqVarID(ncid,'partition');
+% fvout.partition = netcdf.getVar(ncid,varid);
 varid = netcdf.inqVarID(ncid,'x');
 fvout.x = netcdf.getVar(ncid,varid);
 varid = netcdf.inqVarID(ncid,'y');
@@ -42,18 +42,10 @@ varid = netcdf.inqVarID(ncid,'nv');
 fvout.nv = netcdf.getVar(ncid,varid);
 varid = netcdf.inqVarID(ncid,'time');
 fvout.time = netcdf.getVar(ncid,varid);
-varid = netcdf.inqVarID(ncid,'zeta');
-fvout.zeta = netcdf.getVar(ncid,varid);
 
-varid = netcdf.inqVarID(ncid,'u');
-fvout.u = netcdf.getVar(ncid,varid);
-varid = netcdf.inqVarID(ncid,'v');
-fvout.v = netcdf.getVar(ncid,varid);
-varid = netcdf.inqVarID(ncid,'ww');
-fvout.ww = netcdf.getVar(ncid,varid);
-varid = netcdf.inqVarID(ncid,'ua');
-fvout.ua = netcdf.getVar(ncid,varid);
-varid = netcdf.inqVarID(ncid,'va');
-fvout.va = netcdf.getVar(ncid,varid);
+for aa=1:length(varlist)
+    varid = netcdf.inqVarID(ncid,(varlist{aa}));
+    fvout.(varlist{aa}) = netcdf.getVar(ncid,varid);
+end
 
 netcdf.close(ncid);

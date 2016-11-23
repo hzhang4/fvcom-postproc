@@ -1,4 +1,4 @@
-function Xsec=fvcom_profile(fvout,Xsec)
+function Xsec=fvcom_profile(fvout,Xsec,varlist)
 
 Xsec.td=sqrt((Xsec.X-Xsec.X(1)).^2+(Xsec.Y-Xsec.Y(1)).^2);
 
@@ -30,9 +30,15 @@ for i=1:Xsec.np
                 Xsec.zz(i,:,k)=(Xsec.h(i)+Xsec.zeta(i,k))*Xsec.siglay;
             end
             
+            for aa=1:length(varlist)
+                 Xsec.(varlist{aa})(i,:,:)= fvout.(varlist{aa})(j,:,:);
+            end
+            
             Xsec.u(i,:,:)= fvout.u(j,:,:);
             Xsec.v(i,:,:)= fvout.v(j,:,:);
             Xsec.ww(i,:,:)= fvout.ww(j,:,:);
+            Xsec.temp(i,:,:)= fvout.temp(j,:,:);
+            Xsec.salinity(i,:,:)= fvout.salinity(j,:,:);
             
             break
         end

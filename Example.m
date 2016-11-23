@@ -3,27 +3,91 @@
 clear all
 close all
 
-ncfout='HRYS_0001.nc';
+global ftbverbose
+ftbverbose = true; %print information to screen [true/false]
 
-fvout=fvcom_read_ncout(ncfout);
+ncsta='HRYS_0001.nc';
 
+varlist={'zeta','ua','va','wet_nodes','wet_cells'};
+% varlist={'zeta','u','v','ww','ua','va','temp','salinity'};
+
+fvout=fvcom_read_ncout(ncsta,varlist);
 fvout.time=fvout.time+datenum('1899-12-30');
 % datestr(fvout.time)
 
-% CoordinateProjection:'+proj=tmerc +datum=NAD83 +lon_0=120 +lat_0=0 +k=1 +x_0=500000 +y_0=0'
+fvcom_plot_mesh(fvout,'fig/BH')
+fvcom_plot_mesh(fvout,'fig/BH',[38 38.5],[120.5 121.2])
 
+% plot selected nodes and cells on the mesh
+patch('Vertices',[fvout.x,fvout.y],'Faces',fvout.nv,'edgecolor',[0.4,0.4,0.4],'linewidth',0.2,'facecolor','none');
+hold on
+selnode=763;
+scatter(fvout.x(selnode),fvout.y(selnode),10,'r');
+selcell=17000;
+patch('Vertices',[fvout.x,fvout.y],'Faces',fvout.nv(selcell,:),'edgecolor','r','facecolor','r');
+
+% CoordinateProjection:'+proj=tmerc +datum=NAD83 +lon_0=120 +lat_0=0 +k=1 +x_0=500000 +y_0=0'
 mstruct=defaultm('tranmerc');
 mstruct.origin=[0,120,0];
 mstruct.falseeasting=500000;
 mstruct.geoid=[6378137.0, 0.081819190842621];%datum=NAD83
 mstruct = defaultm(mstruct);
+
 % [xn,yn] = feval(mstruct.mapprojection, mstruct,fvout.lat, fvout.lon, 'geopoint','forward');
 % dx=xn-fvout.x;
 % dy=yn-fvout.y;
 
-fvcom_plot_map(fvout,'fig/BH');
+fvcom_plot_map_flow(fvout,'fig/BH');
 
-fvcom_plot_map(fvout,'fig/BHS',[38 38.5],[120.5 121.2]);
+fvcom_plot_map_flow(fvout,'fig/BHS',[38 38.5],[120.5 121.2]);
+
+%harmnic analysis
+%     cnstit='auto';
+% cnstit={'M2  ';'S2  ';'K1  ';'O1  ';'N2  ';'K2  ';'P1  ';'Q1  ';'M4  '};
+
+% Components = {    'M2',  'S2',    'N2',    'K2',    'K1',    'O1',    'P1',    'Q1',    'M4'};
+% Period     = [44714.16, 43200,45570.05,43082.05,86164.09,92949.63,86637.20,96726.08,22357.08];
+
+cnstit={'M2  '};
+
+fvout=fvcom_tidal_harmonic(fvout,cnstit);
+
+load yscst
+fvcom_plot_cotidal(fvout,yscst,'fig/BH_M2')
+fvcom_plot_cotidal(fvout,yscst,'fig/BH_M2')
+
+ele=17000;
+node=fvout.nv(ele,1);
+tr=1:24;
+t=fvout.time(tr);
+h=fvout.zeta(node,tr)';
+u=fvout.ua(ele,tr)';
+v=fvout.va(ele,tr)';
+lat=fvout.latc(ele);
+
+th1=ut_solv (t,h,[], lat, cnstit, 'OLS', 'White', 'LinCI');
+tuv1=ut_solv (t,u,v, lat, cnstit, 'OLS', 'White', 'LinCI');
+
+SEMA=tuv1.Lsmaj;
+SEMI=tuv1.Lsmin;
+INC=tuv1.theta;
+PHA=tuv1.g;
+
+figure
+for i=1:length(t)
+    quiver(0,0,u(i),v(i),1,'k');
+    hold on
+    pause
+end
+plot_tide_ell(tuv1.Lsmaj,tuv1.Lsmin,tuv1.theta,tuv1.g)
+
+
+% i=763;
+% plot(fvout.time,fvout.zeta(i,:))
+% 
+% plot(fvout.time,fvout.ua(i,:),fvout.time,fvout.va(i,:))
+
+%transectional plots
 
 Xsec.latlim=[37.85 38.7];
 Xsec.lonlim=[120.85 121.15];
@@ -35,8 +99,17 @@ Xsec.np=30;
 Xsec.X=linspace(Xsec.Xlim(1),Xsec.Xlim(2),Xsec.np);
 Xsec.Y=linspace(Xsec.Ylim(1),Xsec.Ylim(2),Xsec.np);
 
-Xsec=fvcom_profile(fvout,Xsec);
-fvcom_plot_profile(Xsec,'fig/BHS')
+varlist={'zeta','ua','va'};
+% varlist={'zeta','u','v','ww','ua','va','temp','salinity'};
+
+Xsec=fvcom_profile(fvout,Xsec,varlist);
+
+starttime=datenum('2015-01-24');
+endtime=datenum('2015-03-01');
+
+fvcom_plot_profile_flow(Xsec,'fig/BHS', starttime, endtime)
+fvcom_plot_profile_TS(Xsec,'fig/BHS', starttime, endtime)
+
 
 ncsta='HRYS_station_timeseries.nc';
 
