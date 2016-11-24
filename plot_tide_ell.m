@@ -1,5 +1,5 @@
-function plot_tide_ell(SEMA, SEMI, INC, PHA)
-
+function plot_tide_ell(x,y,SEMA, SEMI, INC, PHA, SF)
+% plot single node tidal ellipse
    ECC = SEMI./SEMA;
    Wp = (1+ECC)/2 .*SEMA; % amplitude for anticlockwise circles
    Wm = (1-ECC)/2 .*SEMA; % amplitude for clockwise circles
@@ -20,9 +20,9 @@ function plot_tide_ell(SEMA, SEMI, INC, PHA)
    ot = 0:dot:2*pi;
    a = wp*exp(1i*ot);
    b = wm*exp(-1i*ot);   
-   w = a+b;
+   w = SF*(a+b);
 
 %    wmax = SEMA*exp(1i*INC);
 %    wmin = SEMI*exp(1i*(INC+pi/2));
 
-   plot(real(w), imag(w))
+   plot(x+real(w), y+imag(w),'r')

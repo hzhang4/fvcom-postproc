@@ -8,14 +8,25 @@ if ftbverbose
 end
 
 % Tidal Elevation Harmonic Analysis
-wet_nodes = (sum(fvout.wet_nodes,2)==fvout.ntime) & (std(fvout.zeta,0,2)>0);
-node_id=find(wet_nodes); % node id in the original mesh
+% remove dry nodes
+ti=sum(fvout.wet_nodes(fvout.tidenode,:),2)==fvout.ntime;
+fvout.tidenode=fvout.tidenode(ti);
 
-fvout.tideh = ut_solv (fvout.time,fvout.zeta(node_id,:)', [], mean(fvout.lat), cnstit, 'OLS', 'White', 'LinCI');
-fvout.tidenode=node_id;
+% remove nodes with invalid elevation
+ti=std(fvout.zeta(fvout.tidenode,:),0,2)>1e-8;
+fvout.tidenode=fvout.tidenode(ti);
 
-wet_cells = (sum(fvout.wet_cells,2)==fvout.ntime) & (std(fvout.ua,0,2)>0)& (std(fvout.va,0,2)>0);
-cell_id=find(wet_cells); % node id in the original mesh
-fvout.tideuv = ut_solv (fvout.time, fvout.ua(cell_id,:)', fvout.va(cell_id,:)',mean(fvout.latc), cnstit, 'OLS', 'White', 'LinCI');
-fvout.tidecell=cell_id;
+fvout.tideh = ut_solv (fvout.time,fvout.zeta(fvout.tidenode,:)', [], ...
+    fvout.lat(fvout.tidenode)', cnstit, 'OLS', 'White', 'LinCI');
+
+% remove cells with invalid elevation
+ti=sum(fvout.wet_cells(fvout.tidecell,:),2)==fvout.ntime;
+fvout.tidecell=fvout.tidecell(ti);
+
+% remove cells with invalid elevation
+ti= (std(fvout.ua(fvout.tidecell,:),0,2)>1e-8) & (std(fvout.va(fvout.tidecell,:),0,2)>1e-8);
+fvout.tidecell=fvout.tidecell(ti);
+
+fvout.tideuv = ut_solv (fvout.time, fvout.ua(fvout.tidecell,:)',...
+    fvout.va(fvout.tidecell,:)',fvout.latc(fvout.tidecell)', cnstit, 'OLS', 'White', 'LinCI');
 

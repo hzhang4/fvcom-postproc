@@ -41,20 +41,17 @@ fvcom_plot_map_flow(fvout,'fig/BH');
 
 fvcom_plot_map_flow(fvout,'fig/BHS',[38 38.5],[120.5 121.2]);
 
-%harmnic analysis
-%     cnstit='auto';
-% cnstit={'M2  ';'S2  ';'K1  ';'O1  ';'N2  ';'K2  ';'P1  ';'Q1  ';'M4  '};
-
-% Components = {    'M2',  'S2',    'N2',    'K2',    'K1',    'O1',    'P1',    'Q1',    'M4'};
-% Period     = [44714.16, 43200,45570.05,43082.05,86164.09,92949.63,86637.20,96726.08,22357.08];
-
 cnstit={'M2  '};
+
+% trim node for tidal analysis
+fvout.tidenode=1:20:fvout.nnode;
+fvout.tidecell=1:50:fvout.nele;
 
 fvout=fvcom_tidal_harmonic(fvout,cnstit);
 
 load yscst
 fvcom_plot_cotidal(fvout,yscst,'fig/BH_M2')
-fvcom_plot_cotidal(fvout,yscst,'fig/BH_M2')
+fvcom_plot_ellipse(fvout,yscst,'fig/BH_M2')
 
 ele=17000;
 node=fvout.nv(ele,1);
