@@ -1,4 +1,4 @@
-function plot_tide_ell(x,y,SEMA, SEMI, INC, PHA, SF)
+function h=plot_tide_ell(x,y,SEMA, SEMI, INC, PHA, SF)
 % plot single node tidal ellipse
 
    ECC = SEMI./SEMA;
@@ -29,7 +29,7 @@ function plot_tide_ell(x,y,SEMA, SEMI, INC, PHA, SF)
 %    wmin = SEMI*exp(1i*(INC+pi/2));
 
    if rd 
-       plot(x+real(w), y+imag(w),'b') %counterclockwise rotation
+       h=plot(x+real(w), y+imag(w),'b'); %counterclockwise rotation
    else
-       plot(x+real(w), y+imag(w),'g') %clockwise rotation
+       h=plot(x+real(w), y+imag(w),'g'); %clockwise rotation
    end

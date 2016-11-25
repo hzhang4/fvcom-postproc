@@ -25,12 +25,22 @@ scale_factor=min(abs(xl(1)-xl(2)),abs(yl(1)-yl(2)))/50;
 lat=fvout.latc(fvout.tidecell);
 lon=fvout.lonc(fvout.tidecell);
 [xn,yn] = feval(mstruct.mapprojection, mstruct,lat, lon, 'geopoint','forward');
-for i=1:length(fvout.tidecell)
-    plot_tide_ell(xn(i),yn(i),fvout.tideuv.Lsmaj(i),fvout.tideuv.Lsmin(i),...
-        fvout.tideuv.theta(i),fvout.tideuv.g(i),scale_factor);
-    hold on
-end
 
-dstr=sprintf('%s_ellipse.png',fname);
-print(myfig,'-dpng','-r600',dstr)
+for j=1:length(fvout.tideuv.name)
+    tname=fvout.tideuv.name{j};
+    h=[];
+    
+    for i=1:length(fvout.tidecell)
+        h=[h;plot_tide_ell(xn(i),yn(i),fvout.tideuv.Lsmaj(j,i),fvout.tideuv.Lsmin(j,i),...
+            fvout.tideuv.theta(j,i),fvout.tideuv.g(j,i),scale_factor)];
+%         hold on
+    end
+    title(tname,'fontsize',12,'fontweight','b');
+    
+    dstr=sprintf('%s_ellipse_%s.png',fname,tname);
+    print(myfig,'-dpng','-r600',dstr)
+    
+    delete(h);
+    
+end
 

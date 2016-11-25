@@ -41,17 +41,17 @@ fvcom_plot_map_flow(fvout,'fig/BH');
 
 fvcom_plot_map_flow(fvout,'fig/BHS',[38 38.5],[120.5 121.2]);
 
-cnstit={'M2  '};
+cnstit={'M2  ','S2  ','K1  ','O1  '};
 
 % trim node for tidal analysis
-fvout.tidenode=1:20:fvout.nnode;
+fvout.tidenode=1:5:fvout.nnode;
 fvout.tidecell=1:50:fvout.nele;
 
 fvout=fvcom_tidal_harmonic(fvout,cnstit);
 
 load yscst
-fvcom_plot_cotidal(fvout,yscst,'fig/BH_M2')
-fvcom_plot_ellipse(fvout,yscst,'fig/BH_M2')
+fvcom_plot_cotidal(fvout,yscst,'fig/BH')
+fvcom_plot_ellipse(fvout,yscst,'fig/BH')
 
 ele=17000;
 node=fvout.nv(ele,1);
